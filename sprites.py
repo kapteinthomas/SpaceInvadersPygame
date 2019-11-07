@@ -36,6 +36,9 @@ class Player(pygame.sprite.Sprite):
         if self.lives <= 0:
             self.kill()
             self.game.game_over()
+    
+    def increase_score(self, score):
+        self.score += score
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -80,6 +83,8 @@ class Bullet(pygame.sprite.Sprite):
                 print("List item number: " + str(index_mob_list))
                 # Kill mob that was hit
                 self.kill()
+                self.game.score += 1
+                
 
         # Check for hits with obstacle
         hits_obst = pygame.sprite.spritecollide(self, self.game.obstacles,False)
@@ -194,3 +199,14 @@ class MobHandler:
         for mob in self.game.list_of_mobs:
             mob.rect.y += (MOB_WIDTH + MOB_SPACE)
         self.call_move_down = False
+
+
+class Heart(pygame.sprite.Sprite):
+    def __init__(self, game, xpos, ypos):
+        self.groups = game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.image = pygame.Surface((MOB_WIDTH, MOB_HEIGHT))
+        self.image.fill(RED)
+        self.rect = self.image.get_rect()
+        self.rect.x = xpos
+        self.rect.y = ypos

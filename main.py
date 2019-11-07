@@ -9,9 +9,12 @@ class Game:
         # initialize pygame and create windowa
         pygame.init()
         pygame.mixer.init()
+        pygame.font.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption("My Game")
         self.clock = pygame.time.Clock()
+        self.game_font = pygame.font.SysFont('Arial', 20)
+        pygame.display.set_caption("Space Invaders")
 
         # Create sprite groups
         self.all_sprites = pygame.sprite.Group()
@@ -20,10 +23,11 @@ class Game:
 
         # Create player and add to sprites group
         self.player = Player(self)
+        self.score = 0
 
         # Create mobs and add to sprite group
         self.mob_handler = MobHandler(self, self.player)
-        ypos = 10
+        ypos = 25
         xpos = 10
         color = RED
         self.list_of_mobs = []
@@ -59,12 +63,20 @@ class Game:
                         xpos += OBST_PART_WIDTH
                     obstacle = Obstacle_part(self, xpos, ypos)
 
+        # Create hearts
+        self.hearts = []
+        xheart = 100
+        yheart = 100
+        for l in range(self.player.lives):
+            self.hearts.append(Heart(self, xheart, 0))
+            xheart += 100
+
         
 
     def game_loop(self):
         # Game loop
-        self.running = True
-        while self.running:
+        running = True
+        while running:
             # keep loop running at the right speed
             self.clock.tick(FPS)
             # Process input (events)
@@ -72,17 +84,22 @@ class Game:
                 # check for closing window
                 if event.type == pygame.QUIT:
                     running = False
-                    pygame.quit()
 
             # Update
             self.all_sprites.update()
             self.mob_handler.update()
 
-            pygame.display.set_caption(str(self.clock))
+            #pygame.display.set_caption(str(self.clock))
 
             # Draw / render
             self.screen.fill(BLACK)
             self.all_sprites.draw(self.screen)
+
+            # Render text
+            score_text = "Score: " + str(self.score)
+            textsurface = self.game_font.render(score_text, False, (255, 255, 255))
+            self.screen.blit(textsurface,(0,0))
+
             # *after* drawing everything, flip the display
             pygame.display.flip()
 
