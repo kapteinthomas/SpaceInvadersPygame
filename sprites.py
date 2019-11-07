@@ -51,25 +51,27 @@ class Bullet(pygame.sprite.Sprite):
             self.kill()
 
         # Check for hits with mob
-        hits = pygame.sprite.spritecollide(self, self.game.mobs, True)
-        if hits:
-            # Stuff for debugging
-            col = hits[0].col
-            row = hits[0].row
-            # Find mob object in mob list
-            index_mob_list = self.game.list_of_mobs.index(hits[0])
-            # Set mob object one row back as a front mob
-            new_front_index = index_mob_list - MOBS_COLS
-            if new_front_index < 0:
-                pass
-            else:
-                self.game.list_of_mobs[new_front_index].front_row = True
-            # Printing stuff for debugging
-            print("col: " + str(col) + "\nrow: " + str(row))
-            print("length of mob of list is " + str(len(self.game.list_of_mobs)))
-            print("List item number: " + str(index_mob_list))
-            # Kill mob that was hit
-            self.kill()
+        if self.dir == 'up':    # Only check for 
+            hits = pygame.sprite.spritecollide(self, self.game.mobs, True)
+            if hits:
+                # Stuff for debugging
+                col = hits[0].col
+                row = hits[0].row
+                
+                # Find mob object in mob list.
+                index_mob_list = self.game.list_of_mobs.index(hits[0])
+                # Set mob object one row back as a front mob
+                new_front_index = index_mob_list - MOBS_COLS
+                if new_front_index < 0:
+                    pass
+                else:
+                    self.game.list_of_mobs[new_front_index].front_row = True
+                # Printing stuff for debugging
+                print("col: " + str(col) + "\nrow: " + str(row))
+                print("length of mob of list is " + str(len(self.game.list_of_mobs)))
+                print("List item number: " + str(index_mob_list))
+                # Kill mob that was hit
+                self.kill()
 
         # Check for hits with obstacle
         hits_obst = pygame.sprite.spritecollide(self, self.game.obstacles,False)
@@ -128,8 +130,8 @@ class MobHandler:
         self.call_move_down = False
 
     def update(self):
-        self.now = pygame.time.get_ticks()
-        if self.now - self.time_last_shot > MOB_FIRE_RATE:
+        now = pygame.time.get_ticks()
+        if now - self.time_last_shot > MOB_FIRE_RATE:
             # Create list of mobs eligble for firing
             mobs_to_fire = []
             for mob in self.game.list_of_mobs:
@@ -144,22 +146,19 @@ class MobHandler:
             for mob in mobs_to_fire:
                 # Check difference in x-value
                 distance = abs(mob.rect.centerx - self.player.rect.centerx)
-                print(distance)
                 if distance < smallest_x_diff:
-                    print("smallest")
                     smallest_x_diff = abs(mob.rect.centerx - self.player.rect.centerx)
                     closest_mob = mob
-                #print(self.player.rect.centerx)
-                #print(mob.rect.centerx)
             closest_mob.fire()
-            self.time_last_shot = self.now
+            self.time_last_shot = now
 
-        if self.now - self.time_last_move > MOB_MOVE_RATE:
+        if now - self.time_last_move > MOB_MOVE_RATE:
             self.move()
 
     def move(self):
+        now = pygame.time.get_ticks()
         if self.call_move_down == True:
-            self.time_last_move = self.now
+            self.time_last_move = now
             self.move_down()
             self.call_move_down = False
             return
@@ -170,7 +169,7 @@ class MobHandler:
                 if mob.rect.x > WIDTH - (MOB_WIDTH + MOB_SPACE) - 1 and self.call_move_down == False:
                     self.call_move_down = True
                     self.move_direction = 'left'
-            self.time_last_move = self.now
+            self.time_last_move = now
                          
         elif self.move_direction == 'left' and not self.call_move_down:
             for mob in self.game.list_of_mobs:
@@ -178,7 +177,7 @@ class MobHandler:
                 if mob.rect.x < MOB_SPACE + 1 and self.call_move_down == False:
                     self.call_move_down = True
                     self.move_direction = 'right'
-            self.time_last_move = self.now
+            self.time_last_move = now
 
         
 
@@ -187,7 +186,3 @@ class MobHandler:
         for mob in self.game.list_of_mobs:
             mob.rect.y += (MOB_WIDTH + MOB_SPACE)
         self.call_move_down = False
-
-
-
-
