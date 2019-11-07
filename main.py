@@ -22,7 +22,7 @@ class Game:
         self.player = Player(self)
 
         # Create mobs and add to sprite group
-        self.mob_handler = MobHandler(self)
+        self.mob_handler = MobHandler(self, self.player)
         ypos = 10
         xpos = 10
         color = RED
