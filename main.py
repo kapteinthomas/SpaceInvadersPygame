@@ -88,5 +88,8 @@ class Game:
 
         pygame.quit()
 
+    def game_over(self):
+        print("Game Over")
+
 game = Game()
 game.game_loop()

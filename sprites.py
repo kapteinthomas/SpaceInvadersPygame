@@ -15,6 +15,7 @@ class Player(pygame.sprite.Sprite):
         # Set starting position of player
         self.rect.centerx = WIDTH / 2
         self.rect.y = PLAYER_Y_POS
+        self.lives = 3
 
     def update(self):
         keys = pygame.key.get_pressed()
@@ -29,6 +30,13 @@ class Player(pygame.sprite.Sprite):
                 centerxpos = self.rect.centerx
                 ypos = self.rect.top - BULLET_HEIGHT
                 bullet = Bullet(self.game, centerxpos, ypos, 'up')
+    
+    def take_damage(self):
+        self.lives -= 1
+        if self.lives <= 0:
+            self.kill()
+            self.game.game_over()
+
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, game, xpos, ypos, dir):
@@ -82,7 +90,7 @@ class Bullet(pygame.sprite.Sprite):
         # Check for hits with player
         if pygame.sprite.collide_rect(self, self.game.player):
             self.kill()
-            self.game.player.kill()
+            self.game.player.take_damage()
 
 
 class Obstacle_part(pygame.sprite.Sprite):
