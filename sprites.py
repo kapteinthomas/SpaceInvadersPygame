@@ -35,7 +35,7 @@ class Player(pygame.sprite.Sprite):
         self.lives -= 1
         if self.lives <= 0:
             self.kill()
-            self.game.game_over()
+            self.game.end_game()
     
     def increase_score(self, score):
         self.score += score

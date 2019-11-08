@@ -24,19 +24,26 @@ class Game:
         self.hearts = pygame.sprite.Group()
 
         # Create player and add to sprites group
+        self.game_state = "start"
+        self.setup_new_game()
+
+    def setup_new_game(self):
+        # Setup stuff
         self.player = Player(self)
         self.score = 0
-
-        # Setup stuff
         self.create_mobs()
         self.create_obstacles()
         self.create_HUD()
         self.load_data()
-    
+        
+
 
     def load_data(self):
         self.dir = path.dirname(__file__)
-        f = open(path.join(self.dir, "highscore.txt"), 'r')
+        f = open(path.join(self.dir, "highscore.txt"), 'r') # Open highscore file for reading
+        self.highscore = int(f.read())
+        print(self.highscore)
+        f.close()
     
 
     def create_mobs(self):
@@ -93,31 +100,58 @@ class Game:
         self.hearts_in_HUD[lives].kill()
 
 
+    def start_screen(self):
+        self.screen.fill(BLACK)
+        start_text = "SPACE INVADERS!"
+        textsurface = self.game_font.render(start_text, False, (255, 255, 255))
+        self.screen.blit(textsurface,(WIDTH/2,HEIGHT/2))
+
+
+    def game_over_sceen(self):
+        self.screen.fill(BLACK)
+        start_text = "Game Over!"
+        textsurface = self.game_font.render(start_text, False, (255, 255, 255))
+        self.screen.blit(textsurface,(WIDTH/2,HEIGHT/2))
+
+
+    def main_screen(self):
+        self.all_sprites.update()
+        self.mob_handler.update()
+
+        # Draw / render
+        self.screen.fill(BLACK)
+        self.all_sprites.draw(self.screen)
+
+        # Render text
+        score_text = "Score: " + str(self.score)
+        textsurface = self.game_font.render(score_text, False, (255, 255, 255))
+        self.screen.blit(textsurface,(0,0))
+
+    
     def game_loop(self):
         # Game loop
         running = True
         while running:
             # keep loop running at the right speed
             self.clock.tick(FPS)
-            # Process input (events)
             for event in pygame.event.get():
-                # check for closing window
                 if event.type == pygame.QUIT:
                     running = False
 
-            # Update
-            self.all_sprites.update()
-            self.mob_handler.update()
+            if self.game_state == "main":
+                self.main_screen()
 
-
-            # Draw / render
-            self.screen.fill(BLACK)
-            self.all_sprites.draw(self.screen)
-
-            # Render text
-            score_text = "Score: " + str(self.score)
-            textsurface = self.game_font.render(score_text, False, (255, 255, 255))
-            self.screen.blit(textsurface,(0,0))
+            elif self.game_state == "start":
+                self.start_screen()
+                # Start game if player pressed button
+                if event.type == pygame.KEYDOWN:
+                    self.game_state = "main"
+            
+            elif self.game_state == "gameover":
+                self.game_over_sceen()
+                if event.type == pygame.KEYDOWN:
+                    self.game_state = "main"
+                    self.setup_new_game()
 
             # *after* drawing everything, flip the display
             pygame.display.flip()
@@ -125,8 +159,22 @@ class Game:
         pygame.quit()
 
 
-    def game_over(self):
+    def end_game(self):
         print("Game Over")
+        if self.score > self.highscore:
+            self.highscore = self.score
+            f = open(path.join(self.dir, "highscore.txt"), 'w')
+            f.write(str(self.highscore))
+            f.close()
+        self.game_state = "gameover"
+        #Cleanup
+        self.all_sprites.empty()
+        self.mobs.empty()
+        self.obstacles.empty()
+        self.hearts.empty()
+
+
+            
 
 
 game = Game()
