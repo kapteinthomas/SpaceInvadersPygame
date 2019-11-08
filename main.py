@@ -3,6 +3,7 @@ import pygame
 import random 
 from sprites import *
 from settings import *
+from os import path
 
 class Game:
     def __init__(self):
@@ -26,7 +27,19 @@ class Game:
         self.player = Player(self)
         self.score = 0
 
-        # Create mobs and add to sprite group
+        # Setup stuff
+        self.create_mobs()
+        self.create_obstacles()
+        self.create_HUD()
+        self.load_data()
+    
+
+    def load_data(self):
+        self.dir = path.dirname(__file__)
+        f = open(path.join(self.dir, "highscore.txt"), 'r')
+    
+
+    def create_mobs(self):
         self.mob_handler = MobHandler(self, self.player)
         ypos = 25
         xpos = 10
@@ -47,7 +60,8 @@ class Game:
             xpos = 10
             row += 1
 
-        # Create obstacles
+
+    def create_obstacles(self):
         for k in range(NUM_OF_OBSTACLES):
             startxpos = OBSTACLE_SPACE + (k * OBSTACLE_SPACE) - (OBST_TOTAL_WIDTH / 2)
             ypos = HEIGHT / 8 * 6
@@ -64,9 +78,6 @@ class Game:
                         xpos += OBST_PART_WIDTH
                     obstacle = Obstacle_part(self, xpos, ypos)
 
-        self.create_HUD()
-
-
 
     def create_HUD(self):
         # Create hearts in HUD
@@ -77,6 +88,7 @@ class Game:
             self.hearts_in_HUD.append(Heart(self, xheart, 0))
             xheart += HEART_WIDTH + HEART_SPACE
     
+
     def update_HUD(self, lives):
         self.hearts_in_HUD[lives].kill()
 
@@ -112,8 +124,10 @@ class Game:
 
         pygame.quit()
 
+
     def game_over(self):
         print("Game Over")
+
 
 game = Game()
 game.game_loop()
