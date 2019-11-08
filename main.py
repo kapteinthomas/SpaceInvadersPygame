@@ -19,7 +19,8 @@ class Game:
         # Create sprite groups
         self.all_sprites = pygame.sprite.Group()
         self.mobs = pygame.sprite.Group()
-        self.obstacles = pygame.sprite.Group() 
+        self.obstacles = pygame.sprite.Group()
+        self.hearts = pygame.sprite.Group()
 
         # Create player and add to sprites group
         self.player = Player(self)
@@ -63,15 +64,22 @@ class Game:
                         xpos += OBST_PART_WIDTH
                     obstacle = Obstacle_part(self, xpos, ypos)
 
-        # Create hearts
-        self.hearts = []
-        xheart = 100
+        self.create_HUD()
+
+
+
+    def create_HUD(self):
+        # Create hearts in HUD
+        self.hearts_in_HUD = []
+        xheart = WIDTH - 3*(HEART_WIDTH + HEART_SPACE)
         yheart = 100
         for l in range(self.player.lives):
-            self.hearts.append(Heart(self, xheart, 0))
-            xheart += 100
+            self.hearts_in_HUD.append(Heart(self, xheart, 0))
+            xheart += HEART_WIDTH + HEART_SPACE
+    
+    def update_HUD(self, lives):
+        self.hearts_in_HUD[lives].kill()
 
-        
 
     def game_loop(self):
         # Game loop
@@ -89,7 +97,6 @@ class Game:
             self.all_sprites.update()
             self.mob_handler.update()
 
-            #pygame.display.set_caption(str(self.clock))
 
             # Draw / render
             self.screen.fill(BLACK)

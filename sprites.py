@@ -77,6 +77,7 @@ class Bullet(pygame.sprite.Sprite):
                     pass
                 else:
                     self.game.list_of_mobs[new_front_index].front_row = True
+                    self.game.list_of_mobs[new_front_index].image.fill(YELLOW)
                 # Printing stuff for debugging
                 print("col: " + str(col) + "\nrow: " + str(row))
                 print("length of mob of list is " + str(len(self.game.list_of_mobs)))
@@ -96,6 +97,7 @@ class Bullet(pygame.sprite.Sprite):
         if pygame.sprite.collide_rect(self, self.game.player):
             self.kill()
             self.game.player.take_damage()
+            self.game.update_HUD(self.game.player.lives)
 
 
 class Obstacle_part(pygame.sprite.Sprite):
@@ -203,9 +205,9 @@ class MobHandler:
 
 class Heart(pygame.sprite.Sprite):
     def __init__(self, game, xpos, ypos):
-        self.groups = game.all_sprites
+        self.groups = game.all_sprites, game.hearts
         pygame.sprite.Sprite.__init__(self, self.groups)
-        self.image = pygame.Surface((MOB_WIDTH, MOB_HEIGHT))
+        self.image = pygame.Surface((HEART_WIDTH, HEART_HEIGHT))
         self.image.fill(RED)
         self.rect = self.image.get_rect()
         self.rect.x = xpos
