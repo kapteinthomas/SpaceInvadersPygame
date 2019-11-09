@@ -1,6 +1,7 @@
 # Pygame template - skeleton for a new pygame project
 import pygame
-import random 
+import random
+import json
 from sprites import *
 from settings import *
 from os import path
@@ -12,7 +13,6 @@ class Game:
         pygame.mixer.init()
         pygame.font.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption("My Game")
         self.clock = pygame.time.Clock()
         self.game_font = pygame.font.SysFont('Arial', 20)
         pygame.display.set_caption("Space Invaders")
@@ -36,7 +36,6 @@ class Game:
         self.create_HUD()
         self.load_data()
         
-
 
     def load_data(self):
         self.dir = path.dirname(__file__)
@@ -109,9 +108,21 @@ class Game:
 
     def game_over_sceen(self):
         self.screen.fill(BLACK)
-        start_text = "Game Over!"
-        textsurface = self.game_font.render(start_text, False, (255, 255, 255))
-        self.screen.blit(textsurface,(WIDTH/2,HEIGHT/2))
+        title = "Game Over!"
+        textsurface = self.game_font.render(title, False, (255, 255, 255))
+        self.screen.blit(textsurface,(WIDTH/2, 50))
+
+        scores = []
+        for name, score in self.highscores.items():
+            #score_name.append(name)
+            #score_name.append(score)
+            scores.append(name + '.......' + str(score))
+        
+        surfaces = []
+        for i in range(len(scores)):
+            surfaces.append(self.game_font.render(scores[i], False, (255, 255, 255)))
+            self.screen.blit(surfaces[i],(WIDTH/2, 100 + (50*i)))
+
 
 
     def main_screen(self):
@@ -173,8 +184,22 @@ class Game:
         self.obstacles.empty()
         self.hearts.empty()
 
+        self.dir = path.dirname(__file__)
+        f = open(path.join(self.dir, "highscores.json"), 'r')
+        self.highscores = json.load(f)
+        print(type(self.highscores))
+        print(self.highscores)
+        """
+        self.highscores = {}
+        for line in f:
+            # Make a list. First item is name. Second item is score
+            name_score = line.split()
+            # Put name as key and score as value in dictionary
+            self.highscores[name_score[0]] = name_score[1] 
+        f.close()
+        print(self.highscores)"""
 
-            
+
 
 
 game = Game()
