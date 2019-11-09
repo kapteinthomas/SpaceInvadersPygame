@@ -14,7 +14,9 @@ class Game:
         pygame.font.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.clock = pygame.time.Clock()
-        self.game_font = pygame.font.SysFont('Arial', 20)
+        self.game_font_big = pygame.font.SysFont('Arial', 60)
+        self.game_font_mid = pygame.font.SysFont('Arial', 40)
+        self.game_font_sml = pygame.font.SysFont('Arial', 20)
         pygame.display.set_caption("Space Invaders")
 
         # Create sprite groups
@@ -26,6 +28,7 @@ class Game:
         # Create player and add to sprites group
         self.game_state = "start"
         self.setup_new_game()
+        self.player_name = ""
 
     def setup_new_game(self):
         # Setup stuff
@@ -40,9 +43,10 @@ class Game:
     def load_data(self):
         self.dir = path.dirname(__file__)
         f = open(path.join(self.dir, "highscore.txt"), 'r') # Open highscore file for reading
-        self.highscore = int(f.read())
-        print(self.highscore)
-        f.close()
+        self.highscores = []
+        for line in f.readlines():
+            self.highscores.append(line.strip('\n').split(' ')) # strip('\n') is for removing \n from string.
+        self.highscore = self.highscores[0][0]
     
 
     def create_mobs(self):
@@ -99,30 +103,49 @@ class Game:
         self.hearts_in_HUD[lives].kill()
 
 
-    def start_screen(self):
+    def start_screen(self, event):
         self.screen.fill(BLACK)
+        # Headline
         start_text = "SPACE INVADERS!"
-        textsurface = self.game_font.render(start_text, False, (255, 255, 255))
-        self.screen.blit(textsurface,(WIDTH/2,HEIGHT/2))
+        start_surface = self.game_font_big.render(start_text, False, (WHITE))
+        # Get rect for centering
+        start_rect = start_surface.get_rect(center=(WIDTH/2, 100))
+        
+        promt_text = "Enter your name"
+        promt_surface = self.game_font_mid.render(promt_text, False, (WHITE))
+        promt_rect = promt_surface.get_rect(center=(WIDTH/2, 200))
+        
+        pygame.key.set_repeat(1000, 1000)
+        if event.type == pygame.KEYDOWN:
+            print("event")
+            self.player_name += event.unicode
+        
+        input_surface = self.game_font_mid.render(self.player_name, False, (WHITE))
+        input_rect = input_surface.get_rect(center=(WIDTH/2, 300))
+
+        # Blit all text to screen
+        self.screen.blit(start_surface,start_rect)
+        self.screen.blit(promt_surface, promt_rect)
+        self.screen.blit(input_surface, input_rect)
+
 
 
     def game_over_sceen(self):
         self.screen.fill(BLACK)
-        title = "Game Over!"
-        textsurface = self.game_font.render(title, False, (255, 255, 255))
-        self.screen.blit(textsurface,(WIDTH/2, 50))
-
-        scores = []
-        for name, score in self.highscores.items():
-            #score_name.append(name)
-            #score_name.append(score)
-            scores.append(name + '.......' + str(score))
+        start_text = "Game Over!"
+        go_surface = self.game_font_big.render(start_text, False, (255, 255, 255))
+        go_rect = go_surface.get_rect(center=(WIDTH/2, 100))
+        self.screen.blit(go_surface,go_rect)
         
+        # Make list of strings for highscores
+        scores = []
+        for i in range(len(self.highscores)):
+            scores.append(self.highscores[i][0] + '....' + self.highscores[i][1])
+        # Make surfaces for bliting
         surfaces = []
-        for i in range(len(scores)):
-            surfaces.append(self.game_font.render(scores[i], False, (255, 255, 255)))
-            self.screen.blit(surfaces[i],(WIDTH/2, 100 + (50*i)))
-
+        for j in range(len(scores)):
+            surfaces.append(self.game_font_sml.render(scores[j], False, (WHITE)))
+            self.screen.blit(surfaces[j], (WIDTH/2, 150+(50*j)))
 
 
     def main_screen(self):
@@ -135,7 +158,7 @@ class Game:
 
         # Render text
         score_text = "Score: " + str(self.score)
-        textsurface = self.game_font.render(score_text, False, (255, 255, 255))
+        textsurface = self.game_font_sml.render(score_text, False, (255, 255, 255))
         self.screen.blit(textsurface,(0,0))
 
     
@@ -153,10 +176,10 @@ class Game:
                 self.main_screen()
 
             elif self.game_state == "start":
-                self.start_screen()
+                self.start_screen(event)
                 # Start game if player pressed button
-                if event.type == pygame.KEYDOWN:
-                    self.game_state = "main"
+                #if event.type == pygame.KEYDOWN:
+                #    self.game_state = "main"
             
             elif self.game_state == "gameover":
                 self.game_over_sceen()
@@ -198,7 +221,6 @@ class Game:
             self.highscores[name_score[0]] = name_score[1] 
         f.close()
         print(self.highscores)"""
-
 
 
 
