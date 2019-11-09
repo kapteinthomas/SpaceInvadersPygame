@@ -41,9 +41,10 @@ class Game:
     def load_data(self):
         self.dir = path.dirname(__file__)
         f = open(path.join(self.dir, "highscore.txt"), 'r') # Open highscore file for reading
-        self.highscore = int(f.read())
-        print(self.highscore)
-        f.close()
+        self.highscores = []
+        for line in f.readlines():
+            self.highscores.append(line.strip('\n').split(' ')) # strip('\n') is for removing \n from string.
+        self.highscore = self.highscores[0][0]
     
 
     def create_mobs(self):
@@ -111,7 +112,17 @@ class Game:
         self.screen.fill(BLACK)
         start_text = "Game Over!"
         textsurface = self.game_font.render(start_text, False, (255, 255, 255))
-        self.screen.blit(textsurface,(WIDTH/2,HEIGHT/2))
+        self.screen.blit(textsurface,(WIDTH/2,50))
+        
+        # Make list of strings for highscores
+        scores = []
+        for i in range(len(self.highscores)):
+            scores.append(self.highscores[i][0] + '....' + self.highscores[i][1])
+        # Make surfaces for bliting
+        surfaces = []
+        for j in range(len(scores)):
+            surfaces.append(self.game_font.render(scores[j], False, (WHITE)))
+            self.screen.blit(surfaces[j], (WIDTH/2, 100+(50*j)))
 
 
     def main_screen(self):
