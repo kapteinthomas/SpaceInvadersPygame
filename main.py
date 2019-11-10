@@ -1,7 +1,5 @@
 # Pygame template - skeleton for a new pygame project
-import pygame
-import random
-import json
+import pygame, random
 from sprites import *
 from settings import *
 from os import path
@@ -29,6 +27,8 @@ class Game:
         self.game_state = "start"
         self.setup_new_game()
         self.player_name = ""
+        self.new_highscore = False
+        self.player_beaten = None
 
     def setup_new_game(self):
         # Setup stuff
@@ -115,10 +115,14 @@ class Game:
         promt_surface = self.game_font_mid.render(promt_text, False, (WHITE))
         promt_rect = promt_surface.get_rect(center=(WIDTH/2, 200))
         
-        pygame.key.set_repeat(1000, 1000)
         if event.type == pygame.KEYDOWN:
-            print("event")
-            self.player_name += event.unicode
+            if event.key == pygame.K_BACKSPACE:
+                self.player_name = self.player_name[:-1]
+            else:
+                self.letter = event.unicode
+        if event.type == pygame.KEYUP and self.letter:
+            self.player_name += self.letter
+            self.letter = None
         
         input_surface = self.game_font_mid.render(self.player_name, False, (WHITE))
         input_rect = input_surface.get_rect(center=(WIDTH/2, 300))
@@ -132,11 +136,21 @@ class Game:
 
     def game_over_sceen(self):
         self.screen.fill(BLACK)
-        start_text = "Game Over!"
-        go_surface = self.game_font_big.render(start_text, False, (255, 255, 255))
+        start_text = "GAME OVER"
+        go_surface = self.game_font_big.render(start_text, False, (WHITE))
         go_rect = go_surface.get_rect(center=(WIDTH/2, 100))
         self.screen.blit(go_surface,go_rect)
         
+        if self.new_highscore:
+            congrats_text = "Congratulations! You beat " + self.player_beaten + '!'
+            congrats_surface = self.game_font_mid.render(congrats_text, False, (GREEN))
+            coongrats_rect = congrats_surface.get_rect(center=(WIDTH/2, 160))
+            self.screen.blit(congrats_surface, coongrats_rect)
+
+        hs_surface = self.game_font_sml.render("HIGHSCORES", False, (WHITE))
+        hs_rect = hs_surface.get_rect(center=(WIDTH/2, 200))
+        self.screen.blit(hs_surface, hs_rect)
+
         # Make list of strings for highscores
         scores = []
         for i in range(len(self.highscores)):
@@ -145,21 +159,27 @@ class Game:
         surfaces = []
         for j in range(len(scores)):
             surfaces.append(self.game_font_sml.render(scores[j], False, (WHITE)))
-            self.screen.blit(surfaces[j], (WIDTH/2, 150+(50*j)))
+            rect = surfaces[j].get_rect(center=(WIDTH/2, 220+(50*j)))
+            self.screen.blit(surfaces[j], (WIDTH/2, 220+(50*j)))
 
 
     def main_screen(self):
         self.all_sprites.update()
         self.mob_handler.update()
 
-        # Draw / render
+        # Draw / render background and sprites
         self.screen.fill(BLACK)
         self.all_sprites.draw(self.screen)
 
         # Render text
         score_text = "Score: " + str(self.score)
-        textsurface = self.game_font_sml.render(score_text, False, (255, 255, 255))
-        self.screen.blit(textsurface,(0,0))
+        score_surface = self.game_font_sml.render(score_text, False, WHITE)
+        self.screen.blit(score_surface,(0,0))
+        
+        namesurface = self.game_font_sml.render(self.player_name, False, WHITE)
+        name_rect = namesurface.get_rect(center=(WIDTH/2, 10))
+        
+        self.screen.blit(namesurface, name_rect)
 
     
     def game_loop(self):
@@ -177,9 +197,9 @@ class Game:
 
             elif self.game_state == "start":
                 self.start_screen(event)
-                # Start game if player pressed button
-                #if event.type == pygame.KEYDOWN:
-                #    self.game_state = "main"
+                # Start game if enter is pressed
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                    self.game_state = "main"
             
             elif self.game_state == "gameover":
                 self.game_over_sceen()
@@ -195,11 +215,6 @@ class Game:
 
     def end_game(self):
         print("Game Over")
-        if self.score > self.highscore:
-            self.highscore = self.score
-            f = open(path.join(self.dir, "highscore.txt"), 'w')
-            f.write(str(self.highscore))
-            f.close()
         self.game_state = "gameover"
         #Cleanup
         self.all_sprites.empty()
@@ -207,20 +222,29 @@ class Game:
         self.obstacles.empty()
         self.hearts.empty()
 
-        self.dir = path.dirname(__file__)
-        f = open(path.join(self.dir, "highscores.json"), 'r')
-        self.highscores = json.load(f)
-        print(type(self.highscores))
-        print(self.highscores)
-        """
-        self.highscores = {}
-        for line in f:
-            # Make a list. First item is name. Second item is score
-            name_score = line.split()
-            # Put name as key and score as value in dictionary
-            self.highscores[name_score[0]] = name_score[1] 
-        f.close()
-        print(self.highscores)"""
+        for i in range(len(self.highscores)):
+            if self.score > int(self.highscores[i][1]):
+                print("Høgere enn " + str((self.highscores[i][0])))
+                self.new_highscore = True
+                self.player_beaten = self.highscores[i][0]
+                new_score_index = i
+                break 
+        
+        if self.new_highscore:
+            #move all other scores down and insert new highscore
+            if len(self.highscores) < 10:
+                self.highscores.append(0) # Just append zero for now, will be filled after
+            else:
+                self.highscores[9] = 0 # If list is filled, set last item to 0. Will be filled after
+            # Bump all items down
+            for j in range(len(self.highscores) - 1, new_score_index, -1):
+                print(j)
+                self.highscores[j] = self.highscores[j-1]
+            # Insert new highscore
+            self.highscores[new_score_index][1] = str(self.score) # Score
+            self.highscores[new_score_index][0] = self.player_name # Name
+    
+
 
 
 
