@@ -1,3 +1,5 @@
 Astrid 1000
-Thomas 100
+Thomas 4
+Jorgen 3
+Joakim 2
 Silje 1

@@ -46,7 +46,8 @@ class Game:
         self.highscores = []
         for line in f.readlines():
             self.highscores.append(line.strip('\n').split(' ')) # strip('\n') is for removing \n from string.
-        self.highscore = self.highscores[0][0]
+        self.highscore = self.highscores[0][1]
+        print(self.highscore)
     
 
     def create_mobs(self):
@@ -216,33 +217,31 @@ class Game:
     def end_game(self):
         print("Game Over")
         self.game_state = "gameover"
-        #Cleanup
+        #Cleanup the sprite groups
         self.all_sprites.empty()
         self.mobs.empty()
         self.obstacles.empty()
         self.hearts.empty()
 
         for i in range(len(self.highscores)):
+            # Check if score is higher than a score on the scoreboard
             if self.score > int(self.highscores[i][1]):
-                print("Høgere enn " + str((self.highscores[i][0])))
+                print("Higher than " + str((self.highscores[i][0])))
                 self.new_highscore = True
                 self.player_beaten = self.highscores[i][0]
                 new_score_index = i
-                break 
-        
+                break
+
+
         if self.new_highscore:
-            #move all other scores down and insert new highscore
-            if len(self.highscores) < 10:
-                self.highscores.append(0) # Just append zero for now, will be filled after
-            else:
-                self.highscores[9] = 0 # If list is filled, set last item to 0. Will be filled after
-            # Bump all items down
-            for j in range(len(self.highscores) - 1, new_score_index, -1):
-                print(j)
-                self.highscores[j] = self.highscores[j-1]
-            # Insert new highscore
-            self.highscores[new_score_index][1] = str(self.score) # Score
-            self.highscores[new_score_index][0] = self.player_name # Name
+            # Append new score, and sort list.
+            self.highscores.append([self.player_name, str(self.score)])
+            self.highscores = sorted(self.highscores, key=self.get_score, reverse=True)
+
+
+    
+    def get_score(self, highscore_list):
+        return int(highscore_list[1])
     
 
 

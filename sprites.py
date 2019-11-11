@@ -79,9 +79,10 @@ class Bullet(pygame.sprite.Sprite):
                     self.game.list_of_mobs[new_front_index].front_row = True
                     self.game.list_of_mobs[new_front_index].image.fill(YELLOW)
                 # Printing stuff for debugging
-                print("col: " + str(col) + "\nrow: " + str(row))
-                print("length of mob of list is " + str(len(self.game.list_of_mobs)))
-                print("List item number: " + str(index_mob_list))
+                #print("col: " + str(col) + "\nrow: " + str(row))
+                #print("length of mob of list is " + str(len(self.game.list_of_mobs)))
+                #print("List item number: " + str(index_mob_list))
+                
                 # Kill mob that was hit
                 self.kill()
                 self.game.score += 1
