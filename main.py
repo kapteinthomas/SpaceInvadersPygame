@@ -206,10 +206,11 @@ class Game:
             if self.game_state == "main":
                 self.main_screen()
             elif self.game_state == "start":
-                self.start_screen(event)
                 # Start game if enter is pressed
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                     self.game_state = "main"
+                else:
+                    self.start_screen(event)
             elif self.game_state == "gameover":
                 self.game_over_sceen()
                 if event.type == pygame.KEYDOWN:
@@ -248,7 +249,6 @@ class Game:
     def get_score(self, highscore_list):
         return int(highscore_list[1])
     
-
 
 game = Game()
 game.game_loop()
