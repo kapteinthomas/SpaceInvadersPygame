@@ -134,6 +134,7 @@ class Mob(pygame.sprite.Sprite):
         centerxpos = self.rect.centerx
         ypos = self.rect.bottom + 10
         bullet = Bullet(self.game, centerxpos, ypos, 'down')
+        self.game.shoot_sound.play()
 
 
 class MobHandler:

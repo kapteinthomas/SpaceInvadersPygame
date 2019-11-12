@@ -49,7 +49,9 @@ class Game:
         for line in f.readlines():
             self.highscores.append(line.strip('\n').split(' ')) # strip('\n') is for removing \n from string.
         self.highscore = self.highscores[0][1]
-        print(self.highscore)
+        
+        self.sound_dir = path.join(self.dir, "sound")
+        self.shoot_sound = pygame.mixer.Sound(path.join(self.sound_dir, "pew.wav"))
     
 
     def create_mobs(self):
