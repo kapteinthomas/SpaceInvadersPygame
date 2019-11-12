@@ -7,8 +7,9 @@ from os import path
 class Game:
     def __init__(self):
         # initialize pygame and create windowa
-        pygame.init()
+        pygame.mixer.pre_init(44100, -16, 1, 512)
         pygame.mixer.init()
+        pygame.init()
         pygame.font.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.clock = pygame.time.Clock()
@@ -51,7 +52,12 @@ class Game:
         self.highscore = self.highscores[0][1]
         
         self.sound_dir = path.join(self.dir, "sound")
-        self.shoot_sound = pygame.mixer.Sound(path.join(self.sound_dir, "pew.wav"))
+        self.sounds = {
+            "hit" : pygame.mixer.Sound(path.join(self.sound_dir, "pew.wav")),
+            "player_shoot" : pygame.mixer.Sound(path.join(self.sound_dir, "player_shoot.wav")),
+            "explosion" : pygame.mixer.Sound(path.join(self.sound_dir, "explosion.wav")),
+            "enemy_shot" : pygame.mixer.Sound(path.join(self.sound_dir, "enemy_shoot.wav"))
+        }
     
 
     def create_mobs(self):

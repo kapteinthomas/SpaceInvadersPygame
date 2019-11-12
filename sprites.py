@@ -30,12 +30,15 @@ class Player(pygame.sprite.Sprite):
                 centerxpos = self.rect.centerx
                 ypos = self.rect.top - BULLET_HEIGHT
                 bullet = Bullet(self.game, centerxpos, ypos, 'up')
+                self.game.sounds["player_shoot"].play()
     
     def take_damage(self):
+        self.game.sounds["hit"].play()
         self.lives -= 1
         if self.lives <= 0:
             self.kill()
             self.game.end_game()
+            self.game.sounds["explosion"].play()
     
     def increase_score(self, score):
         self.score += score
@@ -86,6 +89,7 @@ class Bullet(pygame.sprite.Sprite):
                 # Kill mob that was hit
                 self.kill()
                 self.game.score += 1
+                self.game.sounds["explosion"].play()
                 
 
         # Check for hits with obstacle
@@ -134,7 +138,7 @@ class Mob(pygame.sprite.Sprite):
         centerxpos = self.rect.centerx
         ypos = self.rect.bottom + 10
         bullet = Bullet(self.game, centerxpos, ypos, 'down')
-        self.game.shoot_sound.play()
+        
 
 
 class MobHandler:
@@ -167,7 +171,9 @@ class MobHandler:
                     smallest_x_diff = abs(mob.rect.centerx - self.player.rect.centerx)
                     closest_mob = mob
             closest_mob.fire()
-            self.time_last_shot = now
+            self.game.sounds["enemy_shot"].play()
+            random_float = random.uniform(-2,2)
+            self.time_last_shot = now + random_float
 
         if now - self.time_last_move > MOB_MOVE_RATE:
             self.move()
@@ -195,11 +201,9 @@ class MobHandler:
                     self.call_move_down = True
                     self.move_direction = 'right'
             self.time_last_move = now
-
-        
+ 
 
     def move_down(self):
-        print("Moving down")
         for mob in self.game.list_of_mobs:
             mob.rect.y += (MOB_WIDTH + MOB_SPACE)
         self.call_move_down = False
